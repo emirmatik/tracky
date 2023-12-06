@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "52574860367",
+    "project_id": "tracky-6ddd0",
+    "storage_bucket": "tracky-6ddd0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52574860367:android:069ffe5ad86677a135e63a",
+        "android_client_info": {
+          "package_name": "com.example.tracky"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD517BsMu-kArWCF5bQD3RfVIbHO2reahQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
