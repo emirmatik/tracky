@@ -1,3 +1,5 @@
+import 'package:tracky/components/styled_text.dart';
+import 'package:tracky/core/app_themes.dart';
 import 'package:tracky/pages/new_item.dart';
 import 'package:tracky/pages/profile.dart';
 import 'package:tracky/pages/tracked_items.dart';
@@ -15,7 +17,7 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-  int _selectedPageIndex = 0;
+  int _selectedPageIndex = 1;
 
   final List _pages = [
     const TrackedItemsPage(),
@@ -28,38 +30,36 @@ class _MainState extends State<Main> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tracky',
-      theme: ThemeData(
-        fontFamily: 'Poppins',
-        useMaterial3: true,
-      ),
+      theme: CommonThemes.lightTheme,
       home: Scaffold(
         appBar: AppBar(
-            // leading: ,
-            title: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image(
-                  image: AssetImage('assets/logo64.png'),
-                  width: 32,
-                  height: 32,
-                ),
-                SizedBox(width: 8),
-                Text('Tracky', style: TextStyle(fontSize: 16)),
-              ],
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(1.0),
-              child: Container(
-                color: const Color(0xffE0E0E0),
-                height: 1.0,
+          // leading: ,
+          title: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image(
+                image: AssetImage('assets/logo64.png'),
+                width: 32,
+                height: 32,
               ),
-            )),
+              SizedBox(width: 8),
+              StyledText(text: 'Tracky', type: 'h4'),
+            ],
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1.0),
+            child: Container(
+              color: const Color(0xffE0E0E0),
+              height: 1.0,
+            ),
+          ),
+        ),
         body: _pages[_selectedPageIndex],
         bottomNavigationBar: BottomNavigationBar(
           showSelectedLabels: false,
           showUnselectedLabels: false,
           fixedColor: Colors.black,
-          currentIndex: _selectedPageIndex,
+          currentIndex: 1,
           iconSize: 27,
           onTap: (value) {
             setState(() {
