@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tracky/components/styled_text.dart';
 import 'package:tracky/core/app_themes.dart';
@@ -5,6 +6,9 @@ import 'package:tracky/firebase_options.dart';
 import 'package:tracky/pages/new_item.dart';
 import 'package:tracky/pages/profile.dart';
 import 'package:tracky/pages/tracked_items.dart';
+import 'package:tracky/pages/login.dart';
+import 'package:provider/provider.dart';
+import 'package:tracky/core/user_provider.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
@@ -14,7 +18,10 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const Main());
+  runApp(ChangeNotifierProvider(
+    create: (context) => UserProvider(),
+    child: const Main(),
+  ));
 }
 
 class Main extends StatefulWidget {
@@ -35,6 +42,7 @@ class _MainState extends State<Main> {
 
   @override
   Widget build(BuildContext context) {
+    User? user = Provider.of<UserProvider>(context).user;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tracky',
@@ -62,36 +70,38 @@ class _MainState extends State<Main> {
             ),
           ),
         ),
-        body: _pages[_selectedPageIndex],
-        bottomNavigationBar: BottomNavigationBar(
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          fixedColor: Colors.black,
-          currentIndex: 1,
-          iconSize: 27,
-          onTap: (value) {
-            setState(() {
-              _selectedPageIndex = value;
-            });
-          },
-          items: const [
-            BottomNavigationBarItem(
-              activeIcon: Icon(Icons.space_dashboard),
-              icon: Icon(Icons.space_dashboard_outlined),
-              label: 'Tracked Items',
-            ),
-            BottomNavigationBarItem(
-              activeIcon: Icon(Icons.add_box),
-              icon: Icon(Icons.add_box_outlined),
-              label: 'Tracked Items',
-            ),
-            BottomNavigationBarItem(
-              activeIcon: Icon(Icons.person),
-              icon: Icon(Icons.person_outlined),
-              label: 'Profile',
-            ),
-          ],
-        ),
+        body: user != null ? _pages[_selectedPageIndex] : const LoginPage(),
+        bottomNavigationBar: user != null
+            ? BottomNavigationBar(
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+                fixedColor: Colors.black,
+                currentIndex: 1,
+                iconSize: 27,
+                onTap: (value) {
+                  setState(() {
+                    _selectedPageIndex = value;
+                  });
+                },
+                items: const [
+                  BottomNavigationBarItem(
+                    activeIcon: Icon(Icons.space_dashboard),
+                    icon: Icon(Icons.space_dashboard_outlined),
+                    label: 'Tracked Items',
+                  ),
+                  BottomNavigationBarItem(
+                    activeIcon: Icon(Icons.add_box),
+                    icon: Icon(Icons.add_box_outlined),
+                    label: 'Tracked Items',
+                  ),
+                  BottomNavigationBarItem(
+                    activeIcon: Icon(Icons.person),
+                    icon: Icon(Icons.person_outlined),
+                    label: 'Profile',
+                  ),
+                ],
+              )
+            : null,
       ),
     );
   }
