@@ -1,11 +1,19 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:tracky/components/styled_text.dart';
 import 'package:tracky/core/app_themes.dart';
+import 'package:tracky/firebase_options.dart';
 import 'package:tracky/pages/new_item.dart';
 import 'package:tracky/pages/profile.dart';
 import 'package:tracky/pages/tracked_items.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const Main());
 }
 
