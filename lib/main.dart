@@ -32,7 +32,7 @@ class Main extends StatefulWidget {
 }
 
 class _MainState extends State<Main> {
-  int _selectedPageIndex = 1;
+  int _selectedPageIndex = 0;
 
   final List _pages = [
     const TrackedItemsPage(),
@@ -74,12 +74,19 @@ class _MainState extends State<Main> {
           ),
         ),
       ),
-      body: _pages[_selectedPageIndex],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: _pages[_selectedPageIndex],
+          ),
+        ),
+      ),
       bottomNavigationBar: BottomNavigationBar(
         showSelectedLabels: false,
         showUnselectedLabels: false,
         fixedColor: Colors.black,
-        currentIndex: 1,
+        currentIndex: _selectedPageIndex,
         iconSize: 27,
         onTap: (value) {
           setState(() {

@@ -226,31 +226,24 @@ class _NewItemPageState extends State<NewItemPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            children: [
-              _websiteForm(),
-              const SizedBox(height: 32),
-              isWebviewVisible
-                  ? Column(
-                      children: [
-                        _webView(),
-                        const SizedBox(height: 32),
-                        (isSelecting && selectedItem != null)
-                            ? _webViewNavigator()
-                            : !isSelecting
-                                ? _save()
-                                : _textPlaceholder('Select an item to track'),
-                      ],
-                    )
-                  : _webViewPlaceholder(),
-            ],
-          ),
-        ),
-      ),
+    return Column(
+      children: [
+        _websiteForm(),
+        const SizedBox(height: 32),
+        isWebviewVisible
+            ? Column(
+                children: [
+                  _webView(),
+                  const SizedBox(height: 32),
+                  (isSelecting && selectedItem != null)
+                      ? _webViewNavigator()
+                      : !isSelecting
+                          ? _save()
+                          : _textPlaceholder('Select an item to track'),
+                ],
+              )
+            : _webViewPlaceholder(),
+      ],
     );
   }
 }
