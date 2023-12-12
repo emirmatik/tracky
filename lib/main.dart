@@ -33,6 +33,7 @@ class Main extends StatefulWidget {
 
 class _MainState extends State<Main> {
   int _selectedPageIndex = 0;
+  bool isUserLoading = true;
 
   final List _pages = [
     const TrackedItemsPage(),
@@ -45,12 +46,23 @@ class _MainState extends State<Main> {
     super.initState();
     FirebaseAuth.instance.userChanges().listen((User? user) {
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (user == null) {
+          _selectedPageIndex = 0;
+          isUserLoading = false;
+        }
+
         Provider.of<UserProvider>(context, listen: false).setUser(user);
+
+        if (isUserLoading) {
+          setState(() {
+            isUserLoading = false;
+          });
+        }
       });
     });
   }
 
-  Widget mainScreen() {
+  Widget _mainScreen() {
     return Scaffold(
       body: SafeArea(
         child: NestedScrollView(
@@ -60,6 +72,8 @@ class _MainState extends State<Main> {
               SliverAppBar(
                 floating: true,
                 snap: true,
+                backgroundColor: Colors.white,
+                surfaceTintColor: Colors.white,
                 title: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -122,9 +136,28 @@ class _MainState extends State<Main> {
     );
   }
 
-  Widget authScreen() {
+  Widget _authScreen() {
     return const Scaffold(
       body: LoginPage(),
+    );
+  }
+
+  Widget _loadingScreen() {
+    return const Scaffold(
+      body: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('assets/logo64.png'),
+              width: 48,
+              height: 48,
+            ),
+            SizedBox(width: 8),
+            StyledText(text: 'Tracky', type: 'h1'),
+          ],
+        ),
+      ),
     );
   }
 
@@ -136,7 +169,11 @@ class _MainState extends State<Main> {
       debugShowCheckedModeBanner: false,
       title: 'Tracky',
       theme: CommonThemes.lightTheme,
-      home: user == null ? authScreen() : mainScreen(),
+      home: isUserLoading
+          ? _loadingScreen()
+          : user == null
+              ? _authScreen()
+              : _mainScreen(),
     );
   }
 }
