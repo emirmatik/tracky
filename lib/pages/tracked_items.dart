@@ -140,42 +140,34 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const StyledText(
-                text: 'Tracked Items',
-                type: 'h1',
-              ),
-              const SizedBox(height: 32),
-              FutureBuilder<List<Item>>(
-                future: items,
-                builder: (context, snapshot) {
-                  Widget centeredElement;
-
-                  if (snapshot.hasError) {
-                    centeredElement =
-                        StyledText(text: snapshot.error.toString());
-                  } else if (snapshot.hasData) {
-                    return _renderTrackedItems(snapshot.data);
-                  } else {
-                    centeredElement = const CircularProgressIndicator();
-                  }
-
-                  return SizedBox(
-                    height: 300,
-                    child: Center(child: centeredElement),
-                  );
-                },
-              )
-            ],
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const StyledText(
+          text: 'Tracked Items',
+          type: 'h1',
         ),
-      ),
+        const SizedBox(height: 32),
+        FutureBuilder<List<Item>>(
+          future: items,
+          builder: (context, snapshot) {
+            Widget centeredElement;
+
+            if (snapshot.hasError) {
+              centeredElement = StyledText(text: snapshot.error.toString());
+            } else if (snapshot.hasData) {
+              return _renderTrackedItems(snapshot.data);
+            } else {
+              centeredElement = const CircularProgressIndicator();
+            }
+
+            return SizedBox(
+              height: 300,
+              child: Center(child: centeredElement),
+            );
+          },
+        )
+      ],
     );
   }
 }
