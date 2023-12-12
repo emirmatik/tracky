@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "52574860367",
+    "firebase_url": "https://tracky-6ddd0-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "tracky-6ddd0",
+    "storage_bucket": "tracky-6ddd0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:52574860367:android:069ffe5ad86677a135e63a",
+        "android_client_info": {
+          "package_name": "com.example.tracky"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "52574860367-9v4v48fu6k88inh78ns0bhd2eh15i3pj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD517BsMu-kArWCF5bQD3RfVIbHO2reahQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "52574860367-9v4v48fu6k88inh78ns0bhd2eh15i3pj.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "52574860367-mcetvjm7q1t3635u585v8ung07bhlo9s.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tracky.RunnerTests"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
