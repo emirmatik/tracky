@@ -25,38 +25,146 @@ class _SignupPageState extends State<SignupPage> {
     _passwordInputController = TextEditingController();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    Widget signupForm() {
-      return Form(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget logoSection() {
+    return const Column(
+      children: [
+        Image(image: AssetImage('assets/logo64.png')),
+        SizedBox(height: 32),
+        StyledText(text: 'Tracky', type: 'h1'),
+      ],
+    );
+  }
+
+  Widget signupForm() {
+    return Form(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const StyledText(text: 'Name'),
+          const SizedBox(height: 8),
+          StyledInput(
+            controller: _nameInputController,
+            hint: 'Emir Tugce',
+          ),
+          const SizedBox(height: 32),
+          const StyledText(text: 'Email'),
+          const SizedBox(height: 8),
+          StyledInput(
+            controller: _emailInputController,
+            hint: 'tracky-app@gmail.com',
+          ),
+          const SizedBox(height: 32),
+          const StyledText(text: 'Password'),
+          const SizedBox(height: 8),
+          StyledInput(
+            controller: _passwordInputController,
+            hint: '*************',
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          Row(
+            children: [
+              const StyledText(
+                text: 'You already have an account?',
+                type: 'small',
+              ),
+              const SizedBox(
+                width: 4,
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const StyledText(
+                  text: 'Log in',
+                  color: Color.fromRGBO(0, 117, 255, 1),
+                  type: 'small',
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget signUpButtons() {
+    return Column(
+      children: [
+        StyledButton(
+          handlePress: () => AuthService().signUpWithEmailAndPassword(
+            context,
+            name: _nameInputController.text,
+            email: _emailInputController.text,
+            password: _passwordInputController.text,
+          ),
+          text: 'Sign up',
+        ),
+        const SizedBox(height: 32),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const StyledText(text: 'Name'),
-            const SizedBox(height: 8),
-            StyledInput(
-              controller: _nameInputController,
-              hint: 'Emir Tugce',
+            Expanded(
+              child: Container(
+                height: 1,
+                color: const Color.fromRGBO(0, 0, 0, 0.5),
+              ),
             ),
-            const SizedBox(height: 32),
-            const StyledText(text: 'Email'),
-            const SizedBox(height: 8),
-            StyledInput(
-              controller: _emailInputController,
-              hint: 'tracky-app@gmail.com',
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 31.0),
+              child: StyledText(text: 'or'),
             ),
-            const SizedBox(height: 32),
-            const StyledText(text: 'Password'),
-            const SizedBox(height: 8),
-            StyledInput(
-              controller: _passwordInputController,
-              hint: '*************',
+            Expanded(
+              child: Container(
+                height: 1,
+                color: const Color.fromRGBO(0, 0, 0, 0.5),
+              ),
             ),
           ],
         ),
-      );
-    }
+        const SizedBox(height: 32),
+        OutlinedButton(
+          onPressed: () => AuthService().signInWithGoogle(context),
+          style: OutlinedButton.styleFrom(
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.only(
+                  top: 8,
+                  bottom: 8,
+                ),
+                child: const Center(
+                  child: StyledText(
+                    text: 'Sign up with Google',
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.only(
+                  top: 4,
+                  bottom: 4,
+                ),
+                child: const Image(
+                  image: AssetImage('assets/google_logo32.png'),
+                ),
+              ),
+            ],
+          ),
+        )
+      ],
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tracky',
@@ -70,103 +178,11 @@ class _SignupPageState extends State<SignupPage> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 64),
-                  const Image(image: AssetImage('assets/logo64.png')),
-                  const SizedBox(height: 32),
-                  const StyledText(text: 'Tracky', type: 'h1'),
+                  logoSection(),
                   const SizedBox(height: 64),
                   signupForm(),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    children: [
-                      const StyledText(
-                        text: 'You already have an account?',
-                        type: 'small',
-                      ),
-                      const SizedBox(
-                        width: 4,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: const StyledText(
-                          text: 'Log in',
-                          color: Color.fromRGBO(0, 117, 255, 1),
-                          type: 'small',
-                        ),
-                      )
-                    ],
-                  ),
                   const SizedBox(height: 64),
-                  StyledButton(
-                      handlePress: () =>
-                          AuthService().signUpWithEmailAndPassword(
-                            context,
-                            name: _nameInputController.text,
-                            email: _emailInputController.text,
-                            password: _passwordInputController.text,
-                          ),
-                      text: 'Sign up'),
-                  const SizedBox(height: 32),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: 1,
-                          color: const Color.fromRGBO(0, 0, 0, 0.5),
-                        ),
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 31.0),
-                        child: StyledText(text: 'or'),
-                      ),
-                      Expanded(
-                        child: Container(
-                          height: 1,
-                          color: const Color.fromRGBO(0, 0, 0, 0.5),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 32),
-                  OutlinedButton(
-                    onPressed: () => AuthService().signInWithGoogle(context),
-                    style: OutlinedButton.styleFrom(
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 8,
-                            bottom: 8,
-                          ),
-                          child: const Center(
-                            child: StyledText(
-                              text: 'Sign up with Google',
-                            ),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(
-                            top: 4,
-                            bottom: 4,
-                          ),
-                          child: const Image(
-                            image: AssetImage('assets/google_logo32.png'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
+                  signUpButtons(),
                 ],
               ),
             ),

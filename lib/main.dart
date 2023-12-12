@@ -2,7 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tracky/components/styled_text.dart';
 import 'package:tracky/core/app_themes.dart';
-import 'package:tracky/firebase_options.dart';
+import 'package:tracky/core/firebase_options.dart';
 import 'package:tracky/pages/new_item.dart';
 import 'package:tracky/pages/profile.dart';
 import 'package:tracky/pages/tracked_items.dart';
@@ -44,83 +44,84 @@ class _MainState extends State<Main> {
   void initState() {
     super.initState();
     FirebaseAuth.instance.userChanges().listen((User? user) {
-      if (user == null) {
-        // ignore: avoid_print
-        print('User is currently signed out!');
-      } else {
-        // ignore: use_build_context_synchronously
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          Provider.of<UserProvider>(context, listen: false).setUser(user);
-        });
-      }
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        Provider.of<UserProvider>(context, listen: false).setUser(user);
+      });
     });
+  }
+
+  Widget mainScreen() {
+    return Scaffold(
+      appBar: AppBar(
+        // leading: ,
+        title: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('assets/logo64.png'),
+              width: 32,
+              height: 32,
+            ),
+            SizedBox(width: 8),
+            StyledText(text: 'Tracky', type: 'h4'),
+          ],
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(
+            color: const Color(0xffE0E0E0),
+            height: 1.0,
+          ),
+        ),
+      ),
+      body: _pages[_selectedPageIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
+        fixedColor: Colors.black,
+        currentIndex: 1,
+        iconSize: 27,
+        onTap: (value) {
+          setState(() {
+            _selectedPageIndex = value;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            activeIcon: Icon(Icons.space_dashboard),
+            icon: Icon(Icons.space_dashboard_outlined),
+            label: 'Tracked Items',
+          ),
+          BottomNavigationBarItem(
+            activeIcon: Icon(Icons.add_box),
+            icon: Icon(Icons.add_box_outlined),
+            label: 'Tracked Items',
+          ),
+          BottomNavigationBarItem(
+            activeIcon: Icon(Icons.person),
+            icon: Icon(Icons.person_outlined),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget authScreen() {
+    return const Scaffold(
+      body: LoginPage(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     User? user = Provider.of<UserProvider>(context).user;
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tracky',
       theme: CommonThemes.lightTheme,
-      home: Scaffold(
-        appBar: user != null
-            ? AppBar(
-                // leading: ,
-                title: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image(
-                      image: AssetImage('assets/logo64.png'),
-                      width: 32,
-                      height: 32,
-                    ),
-                    SizedBox(width: 8),
-                    StyledText(text: 'Tracky', type: 'h4'),
-                  ],
-                ),
-                bottom: PreferredSize(
-                  preferredSize: const Size.fromHeight(1.0),
-                  child: Container(
-                    color: const Color(0xffE0E0E0),
-                    height: 1.0,
-                  ),
-                ),
-              )
-            : null,
-        body: user != null ? _pages[_selectedPageIndex] : const LoginPage(),
-        bottomNavigationBar: user != null
-            ? BottomNavigationBar(
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                fixedColor: Colors.black,
-                currentIndex: 1,
-                iconSize: 27,
-                onTap: (value) {
-                  setState(() {
-                    _selectedPageIndex = value;
-                  });
-                },
-                items: const [
-                  BottomNavigationBarItem(
-                    activeIcon: Icon(Icons.space_dashboard),
-                    icon: Icon(Icons.space_dashboard_outlined),
-                    label: 'Tracked Items',
-                  ),
-                  BottomNavigationBarItem(
-                    activeIcon: Icon(Icons.add_box),
-                    icon: Icon(Icons.add_box_outlined),
-                    label: 'Tracked Items',
-                  ),
-                  BottomNavigationBarItem(
-                    activeIcon: Icon(Icons.person),
-                    icon: Icon(Icons.person_outlined),
-                    label: 'Profile',
-                  ),
-                ],
-              )
-            : null,
-      ),
+      home: user == null ? authScreen() : mainScreen(),
     );
   }
 }
