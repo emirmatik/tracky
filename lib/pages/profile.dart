@@ -25,6 +25,8 @@ class _ProfilePage extends State<ProfilePage> {
   void initState() {
     super.initState();
     _emailInputController = TextEditingController();
+    isMailChecked = false;
+    isNotificationChecked = false;
   }
 
   Widget profilePicture(User? user) {
@@ -89,18 +91,19 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget checkbox() {
+  Widget checkbox(bool check) {
     return Transform.scale(
-      scale: 2,
+      scale: 1.7,
       child: Checkbox(
+        side: const BorderSide(width: 0.5),
         fillColor: MaterialStateProperty.resolveWith(getCheckBoxColor),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
         ),
-        value: isMailChecked,
+        value: check,
         onChanged: (bool? value) {
           setState(() {
-            isMailChecked = value!;
+            check = value!;
           });
         },
       ),
@@ -108,16 +111,27 @@ class _ProfilePage extends State<ProfilePage> {
   }
 
   Widget dropdownMenu() {
-    return DropdownMenu<String>(
-      initialSelection: list.first,
-      onSelected: (String? value) {
-        setState(() {
-          dropdownValue = value!;
-        });
-      },
-      dropdownMenuEntries: list.map<DropdownMenuEntry<String>>((String value) {
-        return DropdownMenuEntry<String>(value: value, label: value);
-      }).toList(),
+    return SizedBox(
+      height: 40,
+      child: DropdownButton<String>(
+        isDense: true,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 8,
+        ),
+        value: dropdownValue,
+        onChanged: (String? value) {
+          setState(() {
+            dropdownValue = value!;
+          });
+        },
+        items: list.map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: StyledText(text: value),
+          );
+        }).toList(),
+      ),
     );
   }
 
@@ -137,7 +151,7 @@ class _ProfilePage extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const StyledText(text: 'Enable notifications via mail'),
-            checkbox(),
+            checkbox(isMailChecked),
           ],
         ),
         const SizedBox(
@@ -159,7 +173,7 @@ class _ProfilePage extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const StyledText(text: 'Enable app notifications'),
-            checkbox(),
+            checkbox(isNotificationChecked),
           ],
         ),
         const SizedBox(
