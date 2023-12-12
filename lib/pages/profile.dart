@@ -36,11 +36,12 @@ class _ProfilePage extends State<ProfilePage> {
     }
 
     return FittedBox(
-      fit: BoxFit.contain,
+      fit: BoxFit.cover,
       alignment: Alignment.center,
       child: Container(
         width: 64,
         height: 64,
+        alignment: Alignment.center,
         decoration: ShapeDecoration(
           color: Colors.white,
           shape: RoundedRectangleBorder(
@@ -48,8 +49,11 @@ class _ProfilePage extends State<ProfilePage> {
             borderRadius: BorderRadius.circular(100),
           ),
         ),
-        padding: const EdgeInsets.all(16),
-        child: StyledText(text: initials),
+        padding: const EdgeInsets.all(10),
+        child: StyledText(
+          text: initials,
+          type: 'h2',
+        ),
       ),
     );
   }
@@ -78,10 +82,42 @@ class _ProfilePage extends State<ProfilePage> {
           readOnly: true,
           decoration: InputDecoration(
             labelText: '${user?.email}',
-            border: const OutlineInputBorder(),
+            border: Theme.of(context).inputDecorationTheme.border,
           ),
         ),
       ],
+    );
+  }
+
+  Widget checkbox() {
+    return Transform.scale(
+      scale: 2,
+      child: Checkbox(
+        fillColor: MaterialStateProperty.resolveWith(getCheckBoxColor),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+        value: isMailChecked,
+        onChanged: (bool? value) {
+          setState(() {
+            isMailChecked = value!;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget dropdownMenu() {
+    return DropdownMenu<String>(
+      initialSelection: list.first,
+      onSelected: (String? value) {
+        setState(() {
+          dropdownValue = value!;
+        });
+      },
+      dropdownMenuEntries: list.map<DropdownMenuEntry<String>>((String value) {
+        return DropdownMenuEntry<String>(value: value, label: value);
+      }).toList(),
     );
   }
 
@@ -101,23 +137,7 @@ class _ProfilePage extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const StyledText(text: 'Enable notifications via mail'),
-            Container(
-              width: 32,
-              height: 32,
-              // constraints: const BoxConstraints.expand(),
-              child: Checkbox(
-                fillColor: MaterialStateProperty.resolveWith(getCheckBoxColor),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                value: isMailChecked,
-                onChanged: (bool? value) {
-                  setState(() {
-                    isMailChecked = value!;
-                  });
-                },
-              ),
-            )
+            checkbox(),
           ],
         ),
         const SizedBox(
@@ -139,18 +159,7 @@ class _ProfilePage extends State<ProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const StyledText(text: 'Enable app notifications'),
-            Checkbox(
-              fillColor: MaterialStateProperty.resolveWith(getCheckBoxColor),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-              value: isNotificationChecked,
-              onChanged: (bool? value) {
-                setState(() {
-                  isNotificationChecked = value!;
-                });
-              },
-            )
+            checkbox(),
           ],
         ),
         const SizedBox(
@@ -163,18 +172,7 @@ class _ProfilePage extends State<ProfilePage> {
             const StyledText(
               text: 'Theme',
             ),
-            DropdownMenu<String>(
-              initialSelection: list.first,
-              onSelected: (String? value) {
-                setState(() {
-                  dropdownValue = value!;
-                });
-              },
-              dropdownMenuEntries:
-                  list.map<DropdownMenuEntry<String>>((String value) {
-                return DropdownMenuEntry<String>(value: value, label: value);
-              }).toList(),
-            ),
+            dropdownMenu(),
           ],
         ),
       ],
@@ -195,35 +193,25 @@ class _ProfilePage extends State<ProfilePage> {
   Widget build(BuildContext context) {
     User? user = Provider.of<UserProvider>(context).user;
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 32,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 36),
-              userInformations(user),
-              const SizedBox(height: 32),
-              preferences(user),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        userInformations(user),
+        const SizedBox(height: 32),
+        preferences(user),
 
-              // const SizedBox(
-              //   height: 175,
-              // ),
-              // Expanded(
-              //   child: Row(
-              //     children: [
-              //       StyledButton(handlePress: () => {}, text: 'Discard'),
-              //       StyledButton(handlePress: () => {}, text: 'Save'),
-              //     ],
-              //   ),
-              // ),
-            ],
-          ),
-        ),
-      ),
+        // const SizedBox(
+        //   height: 175,
+        // ),
+        // Expanded(
+        //   child: Row(
+        //     children: [
+        //       StyledButton(handlePress: () => {}, text: 'Discard'),
+        //       StyledButton(handlePress: () => {}, text: 'Save'),
+        //     ],
+        //   ),
+        // ),
+      ],
     );
   }
 }
