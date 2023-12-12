@@ -48,7 +48,8 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
     "uid": "fJARoNcmiDUFXULNhBHC39kTR552"
   };
 
-  final String serverUrl = 'http://localhost:8080';
+  // final String serverUrl = 'http://localhost:8080';
+  final String serverUrl = 'https://tracky-wwr6.onrender.com';
 
   late Future<List<Item>> items;
 
@@ -104,9 +105,6 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
 
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // const { y, height } = element.getBoundingClientRect();
-
-                    // window.scrollTo(0, y - height);
                   }
                 });
               })();

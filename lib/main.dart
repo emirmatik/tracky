@@ -52,33 +52,41 @@ class _MainState extends State<Main> {
 
   Widget mainScreen() {
     return Scaffold(
-      appBar: AppBar(
-        // leading: ,
-        title: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(
-              image: AssetImage('assets/logo64.png'),
-              width: 32,
-              height: 32,
-            ),
-            SizedBox(width: 8),
-            StyledText(text: 'Tracky', type: 'h4'),
-          ],
-        ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(1.0),
-          child: Container(
-            color: const Color(0xffE0E0E0),
-            height: 1.0,
-          ),
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: _pages[_selectedPageIndex],
+        child: NestedScrollView(
+          floatHeaderSlivers: true,
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverAppBar(
+                floating: true,
+                snap: true,
+                title: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image(
+                      image: AssetImage('assets/logo64.png'),
+                      width: 32,
+                      height: 32,
+                    ),
+                    SizedBox(width: 8),
+                    StyledText(text: 'Tracky', type: 'h4'),
+                  ],
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(1.0),
+                  child: Container(
+                    color: const Color(0xffE0E0E0),
+                    height: 1.0,
+                  ),
+                ),
+              )
+            ];
+          },
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: _pages[_selectedPageIndex],
+            ),
           ),
         ),
       ),
