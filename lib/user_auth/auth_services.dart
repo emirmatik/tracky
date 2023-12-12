@@ -1,26 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:provider/provider.dart';
-import 'package:tracky/core/user_provider.dart';
 
-Future<User?> signInWithGoogle(BuildContext context) async {
-  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+class AuthService {
+  Future<void> signInWithGoogle(BuildContext context) async {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
-  final GoogleSignInAuthentication? googleAuth =
-      await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
 
-  final credential = GoogleAuthProvider.credential(
-    accessToken: googleAuth?.accessToken,
-    idToken: googleAuth?.idToken,
-  );
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
 
-  final userCredential =
-      await FirebaseAuth.instance.signInWithCredential(credential);
+    await FirebaseAuth.instance.signInWithCredential(credential);
+  }
 
-  // ignore: use_build_context_synchronously
-  Provider.of<UserProvider>(context, listen: false)
-      .setUser(userCredential.user);
+  Future<void> signUpWithEmailAndPassword(
+    BuildContext context, {
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final credential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await credential.user?.updateDisplayName(name);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
 
-  return userCredential.user;
+  Future<void> signInWithEmail(BuildContext context,
+      {required String emailAddress, required String password}) async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: emailAddress, password: password);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    }
+  }
 }

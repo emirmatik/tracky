@@ -9,8 +9,17 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User? user = Provider.of<UserProvider>(context).user;
-    return Center(
-      child: Text('User Email: ${user?.email}'),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('User Email: ${user?.email}'),
+        Text('User Name: ${user?.displayName}'),
+        ElevatedButton(
+          onPressed: () => FirebaseAuth.instance.signOut(),
+          child: const Text('log out'),
+        )
+      ],
     );
   }
 }

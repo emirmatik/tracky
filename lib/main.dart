@@ -41,6 +41,22 @@ class _MainState extends State<Main> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    FirebaseAuth.instance.userChanges().listen((User? user) {
+      if (user == null) {
+        // ignore: avoid_print
+        print('User is currently signed out!');
+      } else {
+        // ignore: use_build_context_synchronously
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          Provider.of<UserProvider>(context, listen: false).setUser(user);
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     User? user = Provider.of<UserProvider>(context).user;
     return MaterialApp(
@@ -48,28 +64,30 @@ class _MainState extends State<Main> {
       title: 'Tracky',
       theme: CommonThemes.lightTheme,
       home: Scaffold(
-        appBar: AppBar(
-          // leading: ,
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image(
-                image: AssetImage('assets/logo64.png'),
-                width: 32,
-                height: 32,
-              ),
-              SizedBox(width: 8),
-              StyledText(text: 'Tracky', type: 'h4'),
-            ],
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(1.0),
-            child: Container(
-              color: const Color(0xffE0E0E0),
-              height: 1.0,
-            ),
-          ),
-        ),
+        appBar: user != null
+            ? AppBar(
+                // leading: ,
+                title: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image(
+                      image: AssetImage('assets/logo64.png'),
+                      width: 32,
+                      height: 32,
+                    ),
+                    SizedBox(width: 8),
+                    StyledText(text: 'Tracky', type: 'h4'),
+                  ],
+                ),
+                bottom: PreferredSize(
+                  preferredSize: const Size.fromHeight(1.0),
+                  child: Container(
+                    color: const Color(0xffE0E0E0),
+                    height: 1.0,
+                  ),
+                ),
+              )
+            : null,
         body: user != null ? _pages[_selectedPageIndex] : const LoginPage(),
         bottomNavigationBar: user != null
             ? BottomNavigationBar(
