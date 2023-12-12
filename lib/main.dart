@@ -73,6 +73,7 @@ class _MainState extends State<Main> {
                 floating: true,
                 snap: true,
                 backgroundColor: Colors.white,
+                surfaceTintColor: Colors.white,
                 title: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
