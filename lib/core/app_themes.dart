@@ -39,6 +39,7 @@ const _bodySmall = TextStyle(
 
 class CommonThemes {
   static ThemeData lightTheme = ThemeData(
+    colorScheme: const ColorScheme.light(background: Colors.white),
     fontFamily: 'Poppins',
     useMaterial3: true,
     textTheme: const TextTheme(
