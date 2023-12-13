@@ -24,14 +24,6 @@ class StyledButton extends StatelessWidget {
                 fixedSize: const MaterialStatePropertyAll(
                   Size.fromWidth(double.maxFinite),
                 ),
-                foregroundColor: MaterialStateProperty.all(
-                  const Color.fromRGBO(117, 157, 234, 1),
-                ),
-                side: MaterialStateProperty.all(
-                  const BorderSide(
-                    color: Color.fromRGBO(117, 157, 234, 1),
-                  ),
-                ),
               ),
           child: Stack(
             children: [
