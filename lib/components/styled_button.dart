@@ -4,7 +4,7 @@ class StyledButton extends StatelessWidget {
   final void Function() handlePress;
   final String text;
   final String? type;
-  final Icon? icon;
+  final dynamic icon;
 
   const StyledButton({
     super.key,
@@ -26,13 +26,12 @@ class StyledButton extends StatelessWidget {
                 ),
               ),
           child: Stack(
+            alignment: const Alignment(-1, 0),
             children: [
               Center(
                 child: Text(text),
               ),
-              Container(
-                child: icon,
-              ),
+              icon,
             ],
           ),
         );

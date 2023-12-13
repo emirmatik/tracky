@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class StyledInput extends StatelessWidget {
-  final String hint;
   final TextEditingController controller;
+  final bool isPassword;
+  final String hint;
   final String? Function(String?)? validatorFn;
 
   const StyledInput({
@@ -10,6 +11,7 @@ class StyledInput extends StatelessWidget {
     required this.controller,
     required this.hint,
     this.validatorFn,
+    this.isPassword = false,
   });
 
   @override
@@ -18,6 +20,7 @@ class StyledInput extends StatelessWidget {
       autocorrect: false,
       controller: controller,
       validator: validatorFn,
+      obscureText: isPassword,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
