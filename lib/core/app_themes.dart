@@ -87,8 +87,12 @@ class CommonThemes {
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textStyle: _bodyMedium,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        foregroundColor: const Color.fromRGBO(117, 157, 234, 1),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+        side: const BorderSide(
+          color: Color.fromRGBO(117, 157, 234, 1),
         ),
       ),
     ),
