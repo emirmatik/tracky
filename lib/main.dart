@@ -137,27 +137,14 @@ class _MainState extends State<Main> {
   }
 
   Widget _authScreen() {
-    return const Scaffold(
-      body: LoginPage(),
+    return const Material(
+      child: LoginPage(),
     );
   }
 
   Widget _loadingScreen() {
     return const Scaffold(
-      body: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(
-              image: AssetImage('assets/logo64.png'),
-              width: 48,
-              height: 48,
-            ),
-            SizedBox(width: 8),
-            StyledText(text: 'Tracky', type: 'h1'),
-          ],
-        ),
-      ),
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 
