@@ -29,7 +29,7 @@ class _SignupPageState extends State<SignupPage> {
     return const Column(
       children: [
         Image(image: AssetImage('assets/logo64.png')),
-        SizedBox(height: 32),
+        SizedBox(height: 16),
         StyledText(text: 'Tracky', type: 'h1'),
       ],
     );
@@ -58,6 +58,7 @@ class _SignupPageState extends State<SignupPage> {
           const SizedBox(height: 8),
           StyledInput(
             controller: _passwordInputController,
+            isPassword: true,
             hint: '*************',
           ),
           const SizedBox(
@@ -124,41 +125,14 @@ class _SignupPageState extends State<SignupPage> {
           ],
         ),
         const SizedBox(height: 32),
-        OutlinedButton(
-          onPressed: () => AuthService().signInWithGoogle(context),
-          style: OutlinedButton.styleFrom(
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
+        StyledButton(
+          handlePress: () => AuthService().signInWithGoogle(context),
+          text: 'Sign up with Google',
+          type: 'secondary',
+          icon: const Image(
+            image: AssetImage('assets/google_logo32.png'),
           ),
-          child: Stack(
-            children: [
-              Container(
-                padding: const EdgeInsets.only(
-                  top: 8,
-                  bottom: 8,
-                ),
-                child: const Center(
-                  child: StyledText(
-                    text: 'Sign up with Google',
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.only(
-                  top: 4,
-                  bottom: 4,
-                ),
-                child: const Image(
-                  image: AssetImage('assets/google_logo32.png'),
-                ),
-              ),
-            ],
-          ),
-        )
+        ),
       ],
     );
   }
@@ -177,11 +151,11 @@ class _SignupPageState extends State<SignupPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 64),
+                  const SizedBox(height: 48),
                   logoSection(),
-                  const SizedBox(height: 64),
+                  const SizedBox(height: 48),
                   signupForm(),
-                  const SizedBox(height: 64),
+                  const SizedBox(height: 32),
                   signUpButtons(),
                 ],
               ),
