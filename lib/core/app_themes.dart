@@ -82,5 +82,15 @@ class CommonThemes {
         side: const BorderSide(color: Colors.transparent),
       ),
     ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        textStyle: _bodyMedium,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8)),
+        ),
+      ),
+    ),
   );
 }
