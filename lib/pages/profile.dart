@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -13,13 +15,11 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePage();
 }
 
-const List<String> list = <String>['Light', 'Dark'];
-
 class _ProfilePage extends State<ProfilePage> {
   late TextEditingController _emailInputController;
   bool isMailChecked = false;
   bool isNotificationChecked = false;
-  String dropdownValue = list.first;
+  String dropdownValue = 'Light';
 
   @override
   void initState() {
@@ -60,7 +60,25 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget userInformations(User? user) {
+  Widget readOnlyTextField(User? user) {
+    return TextField(
+      readOnly: true,
+      enabled: false,
+      decoration: InputDecoration(
+        labelText: '${user?.email}',
+        labelStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontSize: 16,
+          fontWeight: FontWeight.w400,
+          height: 1.5,
+          color: Colors.black,
+        ),
+        disabledBorder: Theme.of(context).inputDecorationTheme.border,
+      ),
+    );
+  }
+
+  Widget profile(User? user) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -80,18 +98,12 @@ class _ProfilePage extends State<ProfilePage> {
           ],
         ),
         const SizedBox(height: 16),
-        TextField(
-          readOnly: true,
-          decoration: InputDecoration(
-            labelText: '${user?.email}',
-            border: Theme.of(context).inputDecorationTheme.border,
-          ),
-        ),
+        readOnlyTextField(user),
       ],
     );
   }
 
-  Widget checkbox(bool check) {
+  Widget checkbox(bool check, Function(bool) onChanged) {
     return Transform.scale(
       scale: 1.7,
       child: Checkbox(
@@ -102,36 +114,94 @@ class _ProfilePage extends State<ProfilePage> {
         ),
         value: check,
         onChanged: (bool? value) {
-          setState(() {
-            check = value!;
-          });
+          onChanged(value ?? false);
         },
       ),
     );
   }
 
+  Color getCheckBoxColor(Set<MaterialState> states) {
+    const Set<MaterialState> interactiveStates = <MaterialState>{
+      MaterialState.selected,
+    };
+    if (states.any(interactiveStates.contains)) {
+      return const Color.fromRGBO(117, 157, 234, 1);
+    }
+    return Colors.white;
+  }
+
   Widget dropdownMenu() {
-    return SizedBox(
+    return Container(
       height: 40,
-      child: DropdownButton<String>(
-        isDense: true,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
-        value: dropdownValue,
-        onChanged: (String? value) {
-          setState(() {
-            dropdownValue = value!;
-          });
-        },
-        items: list.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: StyledText(text: value),
-          );
-        }).toList(),
+      width: 171,
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black),
+        borderRadius: BorderRadius.circular(8),
       ),
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+      child: Stack(
+        alignment: Alignment.centerRight,
+        children: [
+          const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.keyboard_arrow_down),
+            ],
+          ),
+          SizedBox(
+            height: 40,
+            width: 171,
+            child: DropdownButton<String>(
+              isDense: true,
+              value: dropdownValue,
+              onChanged: (String? value) {
+                setState(() {
+                  dropdownValue = value!;
+                });
+              },
+              items: const [
+                DropdownMenuItem(
+                  value: 'Light',
+                  child: StyledText(
+                    text: 'Light',
+                  ),
+                ),
+                DropdownMenuItem(
+                  value: 'Dark',
+                  child: StyledText(
+                    text: 'Dark',
+                  ),
+                ),
+              ],
+              icon: const SizedBox.shrink(),
+              underline: Container(
+                height: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buttons() {
+    return Row(
+      children: [
+        Expanded(
+          child: StyledButton(
+            handlePress: () => {},
+            text: 'Discard',
+            // type: 'discard',
+          ),
+        ),
+        const SizedBox(width: 32),
+        Expanded(
+          child: StyledButton(
+            handlePress: () => {},
+            text: 'Save',
+          ),
+        )
+      ],
     );
   }
 
@@ -143,42 +213,40 @@ class _ProfilePage extends State<ProfilePage> {
           text: 'Preferences',
           type: 'h2',
         ),
-        const SizedBox(
-          height: 28,
-        ),
+        const SizedBox(height: 28),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const StyledText(text: 'Enable notifications via mail'),
-            checkbox(isMailChecked),
+            checkbox(isMailChecked, (value) {
+              setState(() {
+                isMailChecked = value;
+              });
+            }),
           ],
         ),
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
         const StyledText(text: 'Notified Email'),
-        const SizedBox(
-          height: 7,
-        ),
+        const SizedBox(height: 7),
         StyledInput(
           controller: _emailInputController,
           hint: '${user?.email}',
         ),
-        const SizedBox(
-          height: 32,
-        ),
+        const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const StyledText(text: 'Enable app notifications'),
-            checkbox(isNotificationChecked),
+            checkbox(isNotificationChecked, (value) {
+              setState(() {
+                isNotificationChecked = value;
+              });
+            }),
           ],
         ),
-        const SizedBox(
-          height: 32,
-        ),
+        const SizedBox(height: 32),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -193,16 +261,6 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Color getCheckBoxColor(Set<MaterialState> states) {
-    const Set<MaterialState> interactiveStates = <MaterialState>{
-      MaterialState.selected,
-    };
-    if (states.any(interactiveStates.contains)) {
-      return const Color.fromRGBO(117, 157, 234, 1);
-    }
-    return Colors.white;
-  }
-
   @override
   Widget build(BuildContext context) {
     User? user = Provider.of<UserProvider>(context).user;
@@ -210,21 +268,16 @@ class _ProfilePage extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        userInformations(user),
+        profile(user),
         const SizedBox(height: 32),
         preferences(user),
-
-        // const SizedBox(
-        //   height: 175,
-        // ),
-        // Expanded(
-        //   child: Row(
-        //     children: [
-        //       StyledButton(handlePress: () => {}, text: 'Discard'),
-        //       StyledButton(handlePress: () => {}, text: 'Save'),
-        //     ],
-        //   ),
-        // ),
+        const SizedBox(height: 96),
+        buttons(),
+        const SizedBox(height: 64),
+        StyledButton(
+          handlePress: () => FirebaseAuth.instance.signOut(),
+          text: 'Sign out',
+        )
       ],
     );
   }
