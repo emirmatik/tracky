@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 
 class StyledInput extends StatelessWidget {
+  final String hint;
   final TextEditingController controller;
   final bool isPassword;
-  final String hint;
   final String? Function(String?)? validatorFn;
+  final void Function(String)? handleChange;
 
   const StyledInput({
     super.key,
     required this.controller,
     required this.hint,
     this.validatorFn,
+    this.handleChange,
     this.isPassword = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onChanged: handleChange,
       autocorrect: false,
       controller: controller,
       validator: validatorFn,
