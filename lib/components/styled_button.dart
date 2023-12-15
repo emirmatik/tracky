@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class StyledButton extends StatelessWidget {
-  final void Function() handlePress;
+  final void Function()? handlePress;
   final String text;
   final String? type;
   final dynamic icon;
@@ -24,6 +24,13 @@ class StyledButton extends StatelessWidget {
                 fixedSize: const MaterialStatePropertyAll(
                   Size.fromWidth(double.maxFinite),
                 ),
+                side: MaterialStateProperty.all(
+                  handlePress == null
+                      ? const BorderSide(
+                          color: Color.fromRGBO(117, 157, 234, 0.5),
+                        )
+                      : null,
+                ),
               ),
           child: Stack(
             alignment: const Alignment(-1, 0),
@@ -31,7 +38,7 @@ class StyledButton extends StatelessWidget {
               Center(
                 child: Text(text),
               ),
-              icon,
+              icon ?? Container(),
             ],
           ),
         );
@@ -43,23 +50,22 @@ class StyledButton extends StatelessWidget {
                   Size.fromWidth(double.maxFinite),
                 ),
                 foregroundColor: MaterialStateProperty.all(
-                  const Color.fromRGBO(234, 117, 117, 1),
+                  handlePress == null
+                      ? const Color.fromRGBO(234, 117, 117, 0.5)
+                      : const Color.fromRGBO(234, 117, 117, 1),
                 ),
                 side: MaterialStateProperty.all(
-                  const BorderSide(
-                    color: Color.fromRGBO(234, 117, 117, 1),
-                  ),
+                  handlePress == null
+                      ? const BorderSide(
+                          color: Color.fromRGBO(234, 117, 117, 0.5),
+                        )
+                      : const BorderSide(
+                          color: Color.fromRGBO(234, 117, 117, 1),
+                        ),
                 ),
               ),
-          child: Stack(
-            children: [
-              Center(
-                child: Text(text),
-              ),
-              Container(
-                child: icon,
-              ),
-            ],
+          child: Center(
+            child: Text(text),
           ),
         );
       default:
@@ -71,13 +77,12 @@ class StyledButton extends StatelessWidget {
                 ),
               ),
           child: Stack(
+            alignment: const Alignment(-1, 0),
             children: [
               Center(
                 child: Text(text),
               ),
-              Container(
-                child: icon,
-              ),
+              icon ?? Container(),
             ],
           ),
         );

@@ -74,7 +74,9 @@ class CommonThemes {
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textStyle: _bodyMedium,
         // foregroundColor: Colors.white,
+        disabledForegroundColor: Colors.white,
         backgroundColor: const Color.fromRGBO(117, 157, 234, 1),
+        disabledBackgroundColor: const Color.fromRGBO(117, 157, 234, 0.5),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -87,6 +89,7 @@ class CommonThemes {
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textStyle: _bodyMedium,
         foregroundColor: const Color.fromRGBO(117, 157, 234, 1),
+        disabledForegroundColor: const Color.fromRGBO(117, 157, 234, 0.5),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
