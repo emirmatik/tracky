@@ -60,8 +60,7 @@ class _ProfilePage extends State<ProfilePage> {
     });
   }
 
-  void _updatePreferences(bool enableAppNotifications,
-      bool enableEmailNotifications, String notifiedEmail) async {
+  void _updatePreferences() async {
     setState(() {
       isUpdating = true;
     });
@@ -71,11 +70,7 @@ class _ProfilePage extends State<ProfilePage> {
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, dynamic>{
-        'enableAppNotifications': enableAppNotifications,
-        'enableEmailNotifications': enableEmailNotifications,
-        'notifiedEmail': notifiedEmail,
-      }),
+      body: jsonEncode(preferences),
     );
 
     if (res.statusCode != 200) {
@@ -138,7 +133,7 @@ class _ProfilePage extends State<ProfilePage> {
     });
   }
 
-  Widget profilePicture(User? user) {
+  Widget profilePicture() {
     List<String>? nameParts = user?.displayName!.split(' ');
     String initials = '';
 
@@ -169,7 +164,7 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget readOnlyTextField(User? user) {
+  Widget readOnlyTextField() {
     return TextField(
       readOnly: true,
       enabled: false,
@@ -185,7 +180,7 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget profile(User? user) {
+  Widget profile() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -197,7 +192,7 @@ class _ProfilePage extends State<ProfilePage> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            profilePicture(user),
+            profilePicture(),
             const SizedBox(
               width: 16,
             ),
@@ -205,7 +200,7 @@ class _ProfilePage extends State<ProfilePage> {
           ],
         ),
         const SizedBox(height: 16),
-        readOnlyTextField(user),
+        readOnlyTextField(),
       ],
     );
   }
@@ -292,7 +287,7 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget renderPreferences(User? user) {
+  Widget renderPreferences() {
     return isLoading
         ? const CircularProgressIndicator()
         : Column(
@@ -369,13 +364,7 @@ class _ProfilePage extends State<ProfilePage> {
         const SizedBox(width: 32),
         Expanded(
           child: StyledButton(
-            handlePress: isUpdating
-                ? null
-                : () => _updatePreferences(
-                      preferences['enableAppNotifications'],
-                      preferences['enableEmailNotifications'],
-                      preferences['notifiedEmail'],
-                    ),
+            handlePress: isUpdating ? null : () => _updatePreferences(),
             text: 'Save',
           ),
         )
@@ -388,9 +377,9 @@ class _ProfilePage extends State<ProfilePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        profile(user),
+        profile(),
         const SizedBox(height: 32),
-        renderPreferences(user),
+        renderPreferences(),
         SizedBox(height: !areEqual ? 48 : 0),
         !areEqual ? buttons() : Container(),
         const SizedBox(height: 64),
