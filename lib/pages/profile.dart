@@ -20,10 +20,14 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePage extends State<ProfilePage> {
   final _emailFormKey = GlobalKey<FormState>();
   late TextEditingController _emailInputController;
+  String dropdownValue = 'Light';
+
+  User? user;
+
   bool isLoading = true;
   bool areEqual = true;
-  String dropdownValue = 'Light';
-  User? user;
+  bool isUpdating = false;
+
   Map<String, dynamic> preferences = {
     'enableAppNotifications': null,
     'enableEmailNotifications': null,
@@ -43,8 +47,6 @@ class _ProfilePage extends State<ProfilePage> {
 
     var userPreferences = preferences;
 
-    print(res.body);
-
     if (res.statusCode == 200) {
       final body = jsonDecode(res.body) as Map<String, dynamic>;
       userPreferences = body['data'];
@@ -55,6 +57,35 @@ class _ProfilePage extends State<ProfilePage> {
       isLoading = false;
       preferences = {...userPreferences};
       initialPreferences = {...userPreferences};
+    });
+  }
+
+  void _updatePreferences(bool enableAppNotifications,
+      bool enableEmailNotifications, String notifiedEmail) async {
+    setState(() {
+      isUpdating = true;
+    });
+
+    final res = await http.put(
+      Uri.parse('$serverUrl/preferences/${user?.uid}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'enableAppNotifications': enableAppNotifications,
+        'enableEmailNotifications': enableEmailNotifications,
+        'notifiedEmail': notifiedEmail,
+      }),
+    );
+
+    if (res.statusCode != 200) {
+      throw Exception('Failed to update album.');
+    }
+
+    setState(() {
+      initialPreferences = {...preferences};
+      areEqual = true;
+      isUpdating = false;
     });
   }
 
@@ -97,6 +128,13 @@ class _ProfilePage extends State<ProfilePage> {
 
     setState(() {
       areEqual = currentEquality;
+    });
+  }
+
+  void _discardPreferences() {
+    setState(() {
+      preferences = {...initialPreferences};
+      areEqual = true;
     });
   }
 
@@ -295,7 +333,15 @@ class _ProfilePage extends State<ProfilePage> {
                   checkbox('enableAppNotifications'),
                 ],
               ),
-              const SizedBox(height: 32),
+              isUpdating
+                  ? const Column(
+                      children: [
+                        SizedBox(height: 16),
+                        Center(child: CircularProgressIndicator()),
+                        SizedBox(height: 16),
+                      ],
+                    )
+                  : const SizedBox(height: 32),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -315,7 +361,7 @@ class _ProfilePage extends State<ProfilePage> {
       children: [
         Expanded(
           child: StyledButton(
-            handlePress: () => {},
+            handlePress: isUpdating ? null : () => _discardPreferences(),
             text: 'Discard',
             type: 'discard',
           ),
@@ -323,7 +369,13 @@ class _ProfilePage extends State<ProfilePage> {
         const SizedBox(width: 32),
         Expanded(
           child: StyledButton(
-            handlePress: () => {},
+            handlePress: isUpdating
+                ? null
+                : () => _updatePreferences(
+                      preferences['enableAppNotifications'],
+                      preferences['enableEmailNotifications'],
+                      preferences['notifiedEmail'],
+                    ),
             text: 'Save',
           ),
         )
