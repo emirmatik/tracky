@@ -4,6 +4,7 @@ class StyledInput extends StatelessWidget {
   final String hint;
   final TextEditingController controller;
   final bool isPassword;
+  final bool isDisabled;
   final String? Function(String?)? validatorFn;
   final void Function(String)? handleChange;
 
@@ -14,6 +15,7 @@ class StyledInput extends StatelessWidget {
     this.validatorFn,
     this.handleChange,
     this.isPassword = false,
+    this.isDisabled = false,
   });
 
   @override
@@ -24,6 +26,8 @@ class StyledInput extends StatelessWidget {
       controller: controller,
       validator: validatorFn,
       obscureText: isPassword,
+      enabled: !isDisabled,
+      readOnly: isDisabled,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
@@ -32,6 +36,7 @@ class StyledInput extends StatelessWidget {
         filled: Theme.of(context).inputDecorationTheme.filled,
         border: Theme.of(context).inputDecorationTheme.border,
         focusedBorder: Theme.of(context).inputDecorationTheme.focusedBorder,
+        disabledBorder: Theme.of(context).inputDecorationTheme.disabledBorder,
       ),
       style: Theme.of(context).textTheme.bodyMedium,
     );
