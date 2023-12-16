@@ -1,10 +1,10 @@
 name: tracky
 description: Tracky App
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.1.4 <4.0.0'
+  sdk: ">=3.1.4 <4.0.0"
 
 dependencies:
   firebase_auth: ^4.15.2
@@ -27,14 +27,14 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   fonts:
-      - family: Poppins
-        fonts:
-          - asset: fonts/Poppins-Black.ttf
-          - asset: fonts/Poppins-Bold.ttf
-          - asset: fonts/Poppins-Italic.ttf
-          - asset: fonts/Poppins-Medium.ttf
-          - asset: fonts/Poppins-Regular.ttf
-          - asset: fonts/Poppins-SemiBold.ttf
+    - family: Poppins
+      fonts:
+        - asset: fonts/Poppins-Black.ttf
+        - asset: fonts/Poppins-Bold.ttf
+        - asset: fonts/Poppins-Italic.ttf
+        - asset: fonts/Poppins-Medium.ttf
+        - asset: fonts/Poppins-Regular.ttf
+        - asset: fonts/Poppins-SemiBold.ttf
   assets:
     - assets/
     - assets/js/
