@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:tracky/components/styled_button.dart';
 import 'package:tracky/components/styled_input.dart';
 import 'package:tracky/components/styled_text.dart';
-import 'package:tracky/user_auth/auth_services.dart';
 import 'package:tracky/core/app_themes.dart';
+import 'package:tracky/main.dart';
+import 'package:tracky/user_auth/auth_services.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -17,6 +18,8 @@ class _SignupPageState extends State<SignupPage> {
   late TextEditingController _emailInputController;
   late TextEditingController _passwordInputController;
 
+  String theme = Main.theme;
+
   @override
   void initState() {
     super.initState();
@@ -26,11 +29,11 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   Widget logoSection() {
-    return const Column(
+    return Column(
       children: [
-        Image(image: AssetImage('assets/logo64.png')),
-        SizedBox(height: 16),
-        StyledText(text: 'Tracky', type: 'h1'),
+        Image(image: AssetImage('assets/logo64-$theme.png')),
+        const SizedBox(height: 16),
+        const StyledText(text: 'Tracky', type: 'h1'),
       ],
     );
   }
@@ -75,7 +78,7 @@ class _SignupPageState extends State<SignupPage> {
               ),
               InkWell(
                 onTap: () {
-                  Navigator.pop(context);
+                  navigatorKey.currentState?.pop(context);
                 },
                 child: const StyledText(
                   text: 'Log in',
@@ -95,7 +98,6 @@ class _SignupPageState extends State<SignupPage> {
       children: [
         StyledButton(
           handlePress: () => AuthService().signUpWithEmailAndPassword(
-            context,
             name: _nameInputController.text,
             email: _emailInputController.text,
             password: _passwordInputController.text,
@@ -109,28 +111,39 @@ class _SignupPageState extends State<SignupPage> {
             Expanded(
               child: Container(
                 height: 1,
-                color: const Color.fromRGBO(0, 0, 0, 0.5),
+                color: theme == 'light'
+                    ? const Color.fromRGBO(0, 0, 0, 0.5)
+                    : darkTextSmoke,
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 31.0),
-              child: StyledText(text: 'or'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 31.0),
+              child: StyledText(
+                text: 'or',
+                color: theme == 'light'
+                    ? const Color.fromRGBO(0, 0, 0, 0.5)
+                    : darkTextSmoke,
+              ),
             ),
             Expanded(
               child: Container(
                 height: 1,
-                color: const Color.fromRGBO(0, 0, 0, 0.5),
+                color: theme == 'light'
+                    ? const Color.fromRGBO(0, 0, 0, 0.5)
+                    : darkTextSmoke,
               ),
             ),
           ],
         ),
         const SizedBox(height: 32),
         StyledButton(
-          handlePress: () => AuthService().signInWithGoogle(context),
+          handlePress: () => AuthService().signInWithGoogle(),
           text: 'Sign up with Google',
           type: 'secondary',
           icon: const Image(
             image: AssetImage('assets/google_logo32.png'),
+            width: 24,
+            height: 24,
           ),
         ),
       ],
@@ -139,26 +152,21 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Tracky',
-      theme: CommonThemes.lightTheme,
-      home: Scaffold(
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 55),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 48),
-                  logoSection(),
-                  const SizedBox(height: 48),
-                  signupForm(),
-                  const SizedBox(height: 32),
-                  signUpButtons(),
-                ],
-              ),
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 55),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 48),
+                logoSection(),
+                const SizedBox(height: 48),
+                signupForm(),
+                const SizedBox(height: 32),
+                signUpButtons(),
+              ],
             ),
           ),
         ),
