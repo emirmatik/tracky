@@ -9,7 +9,7 @@ class StyledText extends StatelessWidget {
     super.key,
     required this.text,
     this.type,
-    this.color = Colors.black,
+    this.color,
   });
 
   @override

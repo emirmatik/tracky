@@ -3,6 +3,8 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:tracky/components/styled_button.dart';
 import 'package:tracky/components/styled_input.dart';
 import 'package:tracky/components/styled_text.dart';
+import 'package:tracky/core/app_themes.dart';
+import 'package:tracky/main.dart';
 
 class NewItemPage extends StatefulWidget {
   const NewItemPage({super.key});
@@ -24,6 +26,8 @@ class _NewItemPageState extends State<NewItemPage> {
 
   bool isWebviewVisible = false;
   bool isSelecting = true;
+
+  bool isDarkTheme = Main.theme == 'dark';
 
   @override
   void initState() {
@@ -101,7 +105,7 @@ class _NewItemPageState extends State<NewItemPage> {
     return StyledText(
       text: text,
       type: 'small',
-      color: Colors.black45,
+      color: isDarkTheme ? darkTextSmoke : Colors.black45,
     );
   }
 
@@ -131,7 +135,7 @@ class _NewItemPageState extends State<NewItemPage> {
       height: 400,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
-        border: Border.all(color: Colors.black),
+        border: Border.all(color: isDarkTheme ? darkTextPrimary : Colors.black),
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -174,7 +178,11 @@ class _NewItemPageState extends State<NewItemPage> {
       children: [
         Expanded(
           flex: 1,
-          child: StyledButton(handlePress: _onGoUp, text: 'Go up'),
+          child: StyledButton(
+            handlePress: _onGoUp,
+            type: 'secondary',
+            text: 'Go up',
+          ),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -190,7 +198,7 @@ class _NewItemPageState extends State<NewItemPage> {
       height: 400,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
-        border: Border.all(color: Colors.black),
+        border: Border.all(color: isDarkTheme ? darkTextSmoke : Colors.black),
       ),
       child: Center(
         child: _textPlaceholder('Visit a website to track an item'),

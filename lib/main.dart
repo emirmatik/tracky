@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tracky/components/styled_text.dart';
 import 'package:tracky/core/app_themes.dart';
 import 'package:tracky/core/firebase_options.dart';
@@ -24,8 +25,13 @@ Future<void> main() async {
   ));
 }
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 class Main extends StatefulWidget {
   const Main({super.key});
+
+  static dynamic updateAppTheme;
+  static dynamic theme = 'light';
 
   @override
   State<Main> createState() => _MainState();
@@ -34,6 +40,8 @@ class Main extends StatefulWidget {
 class _MainState extends State<Main> {
   int _selectedPageIndex = 0;
   bool isUserLoading = true;
+  bool isSettingUpConfigs = true;
+  String theme = 'light';
 
   final List _pages = [
     const TrackedItemsPage(),
@@ -44,21 +52,56 @@ class _MainState extends State<Main> {
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.userChanges().listen((User? user) {
-      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-        if (user == null) {
-          _selectedPageIndex = 0;
-          isUserLoading = false;
-        }
 
-        Provider.of<UserProvider>(context, listen: false).setUser(user);
+    Main.updateAppTheme = (appTheme) async {
+      Main.theme = appTheme;
 
-        if (isUserLoading) {
-          setState(() {
-            isUserLoading = false;
-          });
-        }
+      setState(() {
+        theme = appTheme;
       });
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('app-theme', appTheme);
+    };
+
+    configureInitialTheme();
+
+    FirebaseAuth.instance.userChanges().listen((User? user) {
+      if (user == null) {
+        _selectedPageIndex = 0;
+        isUserLoading = false;
+      }
+
+      Provider.of<UserProvider>(context, listen: false).setUser(user);
+
+      if (isUserLoading || user != null) {
+        setState(() {
+          if (isUserLoading) {
+            isUserLoading = false;
+          }
+
+          if (user != null && navigatorKey.currentState!.canPop()) {
+            navigatorKey.currentState?.pop();
+          }
+        });
+      }
+    });
+  }
+
+  void configureInitialTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (!prefs.containsKey('app-theme')) {
+      await prefs.setString('app-theme', 'light');
+    }
+
+    setState(() {
+      String appTheme = prefs.getString('app-theme') ?? theme;
+
+      theme = appTheme;
+      isSettingUpConfigs = false;
+
+      Main.theme = appTheme;
     });
   }
 
@@ -72,24 +115,26 @@ class _MainState extends State<Main> {
               SliverAppBar(
                 floating: true,
                 snap: true,
-                backgroundColor: Colors.white,
-                surfaceTintColor: Colors.white,
-                title: const Row(
+                surfaceTintColor:
+                    theme == 'light' ? Colors.white : darkBackground,
+                title: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Image(
-                      image: AssetImage('assets/logo64.png'),
+                      image: AssetImage('assets/logo64-$theme.png'),
                       width: 32,
                       height: 32,
                     ),
-                    SizedBox(width: 8),
-                    StyledText(text: 'Tracky', type: 'h4'),
+                    const SizedBox(width: 8),
+                    const StyledText(text: 'Tracky', type: 'h4'),
                   ],
                 ),
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(1.0),
                   child: Container(
-                    color: const Color(0xffE0E0E0),
+                    color: theme == 'light'
+                        ? const Color(0xffE0E0E0)
+                        : const Color.fromARGB(255, 63, 63, 63),
                     height: 1.0,
                   ),
                 ),
@@ -137,8 +182,8 @@ class _MainState extends State<Main> {
   }
 
   Widget _authScreen() {
-    return const Material(
-      child: LoginPage(),
+    return const Scaffold(
+      body: LoginPage(),
     );
   }
 
@@ -155,8 +200,13 @@ class _MainState extends State<Main> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tracky',
-      theme: CommonThemes.lightTheme,
-      home: isUserLoading
+      navigatorKey: navigatorKey,
+      theme:
+          theme == 'light' ? CommonThemes.lightTheme : CommonThemes.darkTheme,
+      themeMode: theme == 'light' ? ThemeMode.light : ThemeMode.dark,
+      themeAnimationDuration: const Duration(milliseconds: 300),
+      darkTheme: CommonThemes.darkTheme,
+      home: (isUserLoading || isSettingUpConfigs)
           ? _loadingScreen()
           : user == null
               ? _authScreen()

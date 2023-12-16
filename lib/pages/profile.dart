@@ -7,8 +7,10 @@ import 'package:provider/provider.dart';
 import 'package:tracky/components/styled_button.dart';
 import 'package:tracky/components/styled_input.dart';
 import 'package:tracky/components/styled_text.dart';
+import 'package:tracky/core/app_themes.dart';
 import 'package:tracky/core/user_provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:tracky/main.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -20,7 +22,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePage extends State<ProfilePage> {
   final _emailFormKey = GlobalKey<FormState>();
   late TextEditingController _emailInputController;
-  String dropdownValue = 'Light';
 
   User? user;
 
@@ -28,22 +29,18 @@ class _ProfilePage extends State<ProfilePage> {
   bool areEqual = true;
   bool isUpdating = false;
 
-  Map<String, dynamic> preferences = {
-    'enableAppNotifications': null,
-    'enableEmailNotifications': null,
-    'notifiedEmail': null,
-  };
-  Map<String, dynamic> initialPreferences = {
-    'enableAppNotifications': null,
-    'enableEmailNotifications': null,
-    'notifiedEmail': null,
-  };
+  Map<String, dynamic> preferences = {};
+  Map<String, dynamic> initialPreferences = {};
 
   final String serverUrl = 'https://tracky-wwr6.onrender.com';
 
   void _fetchPreferences() async {
     final res =
         await http.get(Uri.parse('$serverUrl/preferences/${user?.uid}'));
+
+    if (!mounted) {
+      return;
+    }
 
     var userPreferences = preferences;
 
@@ -72,6 +69,10 @@ class _ProfilePage extends State<ProfilePage> {
       },
       body: jsonEncode(preferences),
     );
+
+    if (!mounted) {
+      return;
+    }
 
     if (res.statusCode != 200) {
       throw Exception('Failed to update album.');
@@ -136,6 +137,7 @@ class _ProfilePage extends State<ProfilePage> {
   Widget profilePicture() {
     List<String>? nameParts = user?.displayName!.split(' ');
     String initials = '';
+    String theme = Main.theme;
 
     for (int i = 0; i < nameParts!.length && i < 2; i++) {
       initials += nameParts[i][0].toUpperCase();
@@ -149,9 +151,12 @@ class _ProfilePage extends State<ProfilePage> {
         height: 64,
         alignment: Alignment.center,
         decoration: ShapeDecoration(
-          color: Colors.white,
+          color: theme == 'light' ? Colors.white : darkBackground,
           shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 1),
+            side: BorderSide(
+              width: 1,
+              color: theme == 'light' ? Colors.black : darkTextPrimary,
+            ),
             borderRadius: BorderRadius.circular(100),
           ),
         ),
@@ -165,18 +170,15 @@ class _ProfilePage extends State<ProfilePage> {
   }
 
   Widget readOnlyTextField() {
-    return TextField(
+    String theme = Main.theme;
+
+    return TextFormField(
       readOnly: true,
       enabled: false,
-      decoration: InputDecoration(
-        labelText: '${user?.email}',
-        labelStyle: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          height: 1.5,
-        ),
-      ),
+      initialValue: user!.email,
+      style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: theme == 'light' ? Colors.black45 : darkTextSmoke,
+          ),
     );
   }
 
@@ -233,21 +235,26 @@ class _ProfilePage extends State<ProfilePage> {
   }
 
   Widget dropdownMenu() {
+    String theme = Main.theme;
+
     return Container(
       height: 40,
       width: 171,
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
+        border: Border.all(
+          color: theme == 'light' ? Colors.black : darkTextPrimary,
+        ),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Stack(
         alignment: Alignment.centerRight,
         children: [
-          const Row(
+          Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.keyboard_arrow_down),
-              SizedBox(width: 8),
+              Icon(Icons.keyboard_arrow_down,
+                  color: theme == 'light' ? Colors.black : darkTextPrimary),
+              const SizedBox(width: 8),
             ],
           ),
           SizedBox(
@@ -256,21 +263,17 @@ class _ProfilePage extends State<ProfilePage> {
             child: DropdownButton<String>(
               padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
               isDense: true,
-              value: dropdownValue,
-              onChanged: (String? value) {
-                setState(() {
-                  dropdownValue = value!;
-                });
-              },
+              value: theme,
+              onChanged: Main.updateAppTheme,
               items: const [
                 DropdownMenuItem(
-                  value: 'Light',
+                  value: 'light',
                   child: StyledText(
                     text: 'Light',
                   ),
                 ),
                 DropdownMenuItem(
-                  value: 'Dark',
+                  value: 'dark',
                   child: StyledText(
                     text: 'Dark',
                   ),
@@ -288,67 +291,64 @@ class _ProfilePage extends State<ProfilePage> {
   }
 
   Widget renderPreferences() {
-    return isLoading
-        ? const CircularProgressIndicator()
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const StyledText(
-                text: 'Preferences',
-                type: 'h2',
-              ),
-              const SizedBox(height: 28),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const StyledText(
+          text: 'Preferences',
+          type: 'h2',
+        ),
+        const SizedBox(height: 16),
+        isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const StyledText(text: 'Enable notifications via mail'),
-                  checkbox('enableEmailNotifications'),
-                ],
-              ),
-              const SizedBox(height: 20),
-              const StyledText(text: 'Notified Email'),
-              const SizedBox(height: 7),
-              Form(
-                key: _emailFormKey,
-                autovalidateMode: AutovalidateMode.disabled,
-                child: StyledInput(
-                  controller: _emailInputController,
-                  hint: '${user?.email}',
-                  validatorFn: _emailValidator,
-                  handleChange: _onChangeEmail,
-                ),
-              ),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const StyledText(text: 'Enable app notifications'),
-                  checkbox('enableAppNotifications'),
-                ],
-              ),
-              isUpdating
-                  ? const Column(
-                      children: [
-                        SizedBox(height: 16),
-                        Center(child: CircularProgressIndicator()),
-                        SizedBox(height: 16),
-                      ],
-                    )
-                  : const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const StyledText(
-                    text: 'Theme',
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const StyledText(text: 'Enable notifications via mail'),
+                      checkbox('enableEmailNotifications'),
+                    ],
                   ),
-                  dropdownMenu(),
+                  const SizedBox(height: 20),
+                  const StyledText(text: 'Notified Email'),
+                  const SizedBox(height: 7),
+                  Form(
+                    key: _emailFormKey,
+                    autovalidateMode: AutovalidateMode.disabled,
+                    child: StyledInput(
+                      controller: _emailInputController,
+                      hint: '${user?.email}',
+                      validatorFn: _emailValidator,
+                      handleChange: _onChangeEmail,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const StyledText(text: 'Enable app notifications'),
+                      checkbox('enableAppNotifications'),
+                    ],
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const StyledText(
+                        text: 'Theme',
+                      ),
+                      dropdownMenu(),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          );
+      ],
+    );
   }
 
   Widget buttons() {
@@ -380,14 +380,23 @@ class _ProfilePage extends State<ProfilePage> {
         profile(),
         const SizedBox(height: 32),
         renderPreferences(),
-        SizedBox(height: !areEqual ? 48 : 0),
-        !areEqual ? buttons() : Container(),
-        const SizedBox(height: 64),
-        StyledButton(
-          handlePress: () => FirebaseAuth.instance.signOut(),
-          text: 'Sign out',
-          type: 'secondary',
-        )
+        const SizedBox(height: 32),
+        isUpdating
+            ? const Column(
+                children: [
+                  SizedBox(height: 16),
+                  Center(child: CircularProgressIndicator()),
+                  SizedBox(height: 16),
+                ],
+              )
+            : Container(),
+        !areEqual
+            ? buttons()
+            : StyledButton(
+                handlePress: () => FirebaseAuth.instance.signOut(),
+                text: 'Sign out',
+                type: 'secondary',
+              ),
       ],
     );
   }
