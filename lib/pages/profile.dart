@@ -225,7 +225,7 @@ class _ProfilePage extends State<ProfilePage> {
       MaterialState.selected,
     };
     if (states.any(interactiveStates.contains)) {
-      return const Color.fromRGBO(117, 157, 234, 1);
+      return bluePrimary;
     }
     return Colors.white;
   }
