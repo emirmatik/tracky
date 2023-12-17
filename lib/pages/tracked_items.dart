@@ -146,9 +146,7 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
                   () => VerticalDragGestureRecognizer()),
             ),
           onLoadStop: (controller, url) async {
-            setState(() {
-              initialLoadComplete = true;
-            });
+            initialLoadComplete = true;
 
             controller.addJavaScriptHandler(
               handlerName: 'getXpath',
@@ -165,7 +163,6 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
 
                 window.flutter_inappwebview.callHandler('getXpath').then((xpath) => {
                   const element = getElementByXpath(xpath);
-                  alert(element?.innerHTML);
 
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
