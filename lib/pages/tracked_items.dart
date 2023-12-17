@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:tracky/components/styled_text.dart';
@@ -54,7 +55,7 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
 
   bool initialLoadComplete = false;
 
-  final String serverUrl = 'https://tracky-wwr6.onrender.com';
+  final String? serverUrl = dotenv.env['SERVER_URL'];
   String theme = Main.theme;
 
   late Future<List<Item>> items;

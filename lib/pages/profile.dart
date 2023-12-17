@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:tracky/components/styled_button.dart';
 import 'package:tracky/components/styled_input.dart';
@@ -32,7 +33,7 @@ class _ProfilePage extends State<ProfilePage> {
   Map<String, dynamic> preferences = {};
   Map<String, dynamic> initialPreferences = {};
 
-  final String serverUrl = 'https://tracky-wwr6.onrender.com';
+  final String? serverUrl = dotenv.env['SERVER_URL'];
 
   void _fetchPreferences() async {
     final res =
