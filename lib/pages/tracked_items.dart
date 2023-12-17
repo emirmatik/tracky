@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'package:tracky/core/user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tracky/core/app_themes.dart';
+import 'package:tracky/main.dart';
 
 class Item {
   final String uid;
@@ -19,13 +21,14 @@ class Item {
   final String xpath;
   final bool isUpdated;
 
-  const Item(
-      {required this.uid,
-      required this.html,
-      required this.title,
-      required this.url,
-      required this.xpath,
-      required this.isUpdated});
+  const Item({
+    required this.uid,
+    required this.html,
+    required this.title,
+    required this.url,
+    required this.xpath,
+    required this.isUpdated,
+  });
 
   factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
@@ -47,46 +50,66 @@ class TrackedItemsPage extends StatefulWidget {
 }
 
 class _TrackedItemsPageState extends State<TrackedItemsPage> {
-  final Map<String, String> user = {
-    "email": "matik@gmail.com",
-    "uid": "fJARoNcmiDUFXULNhBHC39kTR552"
-  };
-
-  // User? user;
+  User? user;
 
   bool initialLoadComplete = false;
 
-  // final String serverUrl = 'http://localhost:8080';
   final String serverUrl = 'https://tracky-wwr6.onrender.com';
+  String theme = Main.theme;
 
   late Future<List<Item>> items;
 
   Future<List<Item>> _fetchItems() async {
-    final res = await http.get(Uri.parse('$serverUrl/items/${user['uid']}'));
+    final res = await http.get(Uri.parse('$serverUrl/items/${user?.uid}'));
+
+    if (!mounted) {
+      return [];
+    }
 
     if (res.statusCode == 200) {
       final List<dynamic> data = jsonDecode(res.body)['data'];
       final Iterable<Item> items =
           data.map((itemJson) => Item.fromJson(itemJson));
+
       return items.toList();
     } else {
       throw Exception('Failed to fetch tracked items');
     }
   }
 
+  void _markItemsAsSeen(List<String> ids) async {
+    try {
+      await http.post(
+        Uri.parse('$serverUrl/items/seen/${user?.uid}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(ids),
+      );
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    // user = Provider.of<UserProvider>(context, listen: false).user;
+    user = Provider.of<UserProvider>(context, listen: false).user;
     items = _fetchItems();
-    // TODO :: call fn to mark items as seen
+    items.then((List<Item> result) {
+      List<Item> updatedItems = result.where((item) => item.isUpdated).toList();
+      if (updatedItems.isNotEmpty) {
+        final List<String> ids = updatedItems.map((item) => item.uid).toList();
+        _markItemsAsSeen(ids);
+      }
+    });
   }
 
   Widget _textPlaceholder(String text) {
     return StyledText(
       text: text,
       type: 'small',
-      color: Colors.black45,
+      color: theme == 'dark' ? darkTextSmoke : Colors.black45,
     );
   }
 
@@ -95,7 +118,8 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
       height: 400,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
-        border: Border.all(color: Colors.black),
+        border:
+            Border.all(color: theme == 'dark' ? darkTextPrimary : Colors.black),
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
@@ -111,7 +135,6 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
             if (initialLoadComplete) {
               return NavigationActionPolicy.CANCEL;
             }
-
             return NavigationActionPolicy.ALLOW;
           },
           shouldInterceptFetchRequest: (controller, fetchRequest) async {
@@ -142,19 +165,14 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
 
                 window.flutter_inappwebview.callHandler('getXpath').then((xpath) => {
                   const element = getElementByXpath(xpath);
+                  alert(element?.innerHTML);
 
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    element.classList.add('selectedByTracky');
+                    element.style.border = '2px dashed #759DEA';
                   }
                 });
               })();
-            ''');
-
-            await controller.injectCSSCode(source: '''
-              .selectedByTracky {
-                border: 3px solid #759DEA;
-              }
             ''');
           },
         ),
@@ -167,45 +185,62 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
         ? SizedBox(
             height: 400,
             child: Center(
-              child: _textPlaceholder('Start tracking your favorite sites!'),
+              child: _textPlaceholder('Start tracking your favorite sites'),
             ),
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: List.generate(items.length, (index) {
               final item = items[index];
-              // StyledText(text: '${item.title} - ${Uri.parse(item.url).host}'),
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      RichText(
-                        text: TextSpan(
-                          text: item.title,
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            height: 1.5,
-                            color: Colors.black,
-                            decoration: TextDecoration.underline,
-                            decorationThickness: 2.0,
-                            decorationColor: Color.fromRGBO(0, 0, 0, 0.5),
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              if (await canLaunchUrl(Uri.parse(item.url))) {
-                                await launchUrl(
-                                  Uri.parse(item.url),
-                                );
-                              }
-                            },
+                      Stack(
+                        alignment: const Alignment(-1.5, 0),
+                        children: [
+                          StyledText(text: item.title),
+                          item.isUpdated
+                              ? const Icon(
+                                  Icons.circle,
+                                  size: 11,
+                                  color: bluePrimary,
+                                )
+                              : Container(),
+                        ],
+                      ),
+                      InkWell(
+                        onTap: () async {
+                          if (await canLaunchUrl(Uri.parse(item.url))) {
+                            await launchUrl(
+                              Uri.parse(item.url),
+                            );
+                          }
+                        },
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            StyledText(
+                              text: 'See website',
+                              type: 'small',
+                            ),
+                            SizedBox(width: 4),
+                            Icon(
+                              Icons.launch_rounded,
+                              size: 16,
+                            ),
+                          ],
                         ),
                       ),
-                      StyledText(text: ' - ${Uri.parse(item.url).host}'),
                     ],
+                  ),
+                  StyledText(
+                    text: Uri.parse(item.url).host,
+                    type: 'small',
                   ),
                   const SizedBox(height: 16),
                   _webView(item.url, item.xpath),

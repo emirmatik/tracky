@@ -37,6 +37,8 @@ const _bodySmall = TextStyle(
   height: 1.43,
 );
 
+const bluePrimary = Color.fromRGBO(117, 157, 234, 1);
+
 const darkBackground = Color.fromRGBO(18, 18, 18, 1);
 const darkTextPrimary = Color.fromRGBO(255, 255, 255, 0.87);
 const darkTextSmoke = Color.fromRGBO(255, 255, 255, 0.6);
@@ -79,7 +81,7 @@ class CommonThemes {
         textStyle: _bodyMedium,
         // foregroundColor: Colors.white,
         disabledForegroundColor: Colors.white,
-        backgroundColor: const Color.fromRGBO(117, 157, 234, 1),
+        backgroundColor: bluePrimary,
         disabledBackgroundColor: const Color.fromRGBO(117, 157, 234, 0.5),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: const RoundedRectangleBorder(
@@ -92,14 +94,14 @@ class CommonThemes {
       style: OutlinedButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textStyle: _bodyMedium,
-        foregroundColor: const Color.fromRGBO(117, 157, 234, 1),
+        foregroundColor: bluePrimary,
         disabledForegroundColor: const Color.fromRGBO(117, 157, 234, 0.5),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         fixedSize: const Size.fromHeight(40),
         side: const BorderSide(
-          color: Color.fromRGBO(117, 157, 234, 1),
+          color: bluePrimary,
         ),
       ),
     ),
@@ -113,8 +115,9 @@ class CommonThemes {
       backgroundColor: Colors.white,
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: Color.fromRGBO(117, 157, 234, 1),
+      color: bluePrimary,
     ),
+    iconTheme: const IconThemeData(color: Colors.black),
   );
 
   static ThemeData darkTheme = ThemeData(
@@ -170,7 +173,7 @@ class CommonThemes {
         textStyle: _bodyMedium,
         // foregroundColor: Colors.white,
         disabledForegroundColor: Colors.white,
-        backgroundColor: const Color.fromRGBO(117, 157, 234, 1),
+        backgroundColor: bluePrimary,
         disabledBackgroundColor: const Color.fromRGBO(117, 157, 234, 0.5),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         shape: const RoundedRectangleBorder(
@@ -183,14 +186,14 @@ class CommonThemes {
       style: OutlinedButton.styleFrom(
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         textStyle: _bodyMedium,
-        foregroundColor: const Color.fromRGBO(117, 157, 234, 1),
+        foregroundColor: bluePrimary,
         disabledForegroundColor: const Color.fromRGBO(117, 157, 234, 0.5),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(8)),
         ),
         fixedSize: const Size.fromHeight(40),
         side: const BorderSide(
-          color: Color.fromRGBO(117, 157, 234, 1),
+          color: bluePrimary,
         ),
       ),
     ),
@@ -204,7 +207,8 @@ class CommonThemes {
       backgroundColor: darkBackground,
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(
-      color: Color.fromRGBO(117, 157, 234, 1),
+      color: bluePrimary,
     ),
+    iconTheme: const IconThemeData(color: darkTextPrimary),
   );
 }

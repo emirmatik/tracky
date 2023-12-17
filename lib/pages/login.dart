@@ -156,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
         config: CustomConfig(
           durations: [5000, 4800],
           colors: [
-            const Color.fromRGBO(117, 157, 234, 1),
+            bluePrimary,
             const Color.fromRGBO(117, 157, 234, 0.4),
           ],
           heightPercentages: [0.2, 0.19],
