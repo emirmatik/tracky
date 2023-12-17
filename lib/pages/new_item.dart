@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:provider/provider.dart';
 import 'package:tracky/components/styled_button.dart';
@@ -25,7 +26,7 @@ class _NewItemPageState extends State<NewItemPage> {
   final _websiteFormKey = GlobalKey<FormState>();
   final _saveFormKey = GlobalKey<FormState>();
 
-  final String serverUrl = 'https://tracky-wwr6.onrender.com';
+  final String? serverUrl = dotenv.env['SERVER_URL'];
 
   late TextEditingController _websiteInputController;
   late TextEditingController _titleInputController;
