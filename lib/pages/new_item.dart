@@ -36,6 +36,7 @@ class _NewItemPageState extends State<NewItemPage> {
 
   User? user;
 
+  bool initialLoadComplete = false;
   bool isWebviewVisible = false;
   bool isSelecting = true;
   bool isPosting = false;
@@ -75,13 +76,23 @@ class _NewItemPageState extends State<NewItemPage> {
     return null;
   }
 
-  void _onEnterWebsite() {
+  void _onEnterWebsite() async {
     bool isURLValid = _websiteFormKey.currentState!.validate();
 
     if (isURLValid) {
       // text is valid, open up the webview
+      if (_initialController != null) {
+        await _initialController?.evaluateJavascript(source: '''
+          window.flutter_inappwebview.callHandler('getUrl').then((url) => {
+            window.location.href = url;
+          });
+        ''');
+      }
+
       setState(() {
         isWebviewVisible = isURLValid;
+        isSelecting = true;
+        selectedItem = null;
       });
     }
   }
@@ -91,7 +102,7 @@ class _NewItemPageState extends State<NewItemPage> {
 
     final Map<String, dynamic> body = {
       "xpath": selectedItem?['xpath'],
-      "html": selectedItem?['innerHTML'],
+      "html": selectedItem?['html'],
       "title": title,
       "url": _websiteInputController.text
     };
@@ -100,7 +111,7 @@ class _NewItemPageState extends State<NewItemPage> {
       isPosting = true;
     });
 
-    await http.post(
+    final res = await http.post(
       Uri.parse('$serverUrl/items/${user?.uid}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -112,16 +123,22 @@ class _NewItemPageState extends State<NewItemPage> {
       return;
     }
 
-    _websiteInputController.clear();
-    _titleInputController.clear();
+    if (res.statusCode == 200) {
+      _websiteInputController.clear();
+      _titleInputController.clear();
 
-    setState(() {
-      _initialController = null;
-      isWebviewVisible = false;
-      selectedItem = null;
-      isSelecting = true;
-      isPosting = false;
-    });
+      setState(() {
+        _initialController = null;
+        isWebviewVisible = false;
+        selectedItem = null;
+        isSelecting = true;
+        isPosting = false;
+      });
+    } else {
+      setState(() {
+        isPosting = false;
+      });
+    }
   }
 
   void _onTrack() {
@@ -191,6 +208,30 @@ class _NewItemPageState extends State<NewItemPage> {
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         child: InAppWebView(
+          initialOptions: InAppWebViewGroupOptions(
+            crossPlatform: InAppWebViewOptions(
+              useShouldOverrideUrlLoading: true,
+              useShouldInterceptFetchRequest: true,
+            ),
+          ),
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            final url = navigationAction.request.url.toString();
+
+            String userUrl = _websiteInputController.text;
+
+            if (userUrl[userUrl.length - 1] != '/') {
+              userUrl += '/';
+            }
+
+            if (initialLoadComplete && url != userUrl) {
+              return NavigationActionPolicy.CANCEL;
+            }
+
+            return NavigationActionPolicy.ALLOW;
+          },
+          shouldInterceptFetchRequest: (controller, fetchRequest) async {
+            return FetchRequest(action: FetchRequestAction.ABORT);
+          },
           initialUrlRequest:
               URLRequest(url: Uri.parse(_websiteInputController.text)),
           gestureRecognizers: Set()
@@ -198,6 +239,14 @@ class _NewItemPageState extends State<NewItemPage> {
                 () => VerticalDragGestureRecognizer())),
           onLoadStop: (controller, url) async {
             _initialController = controller;
+            initialLoadComplete = true;
+
+            controller.addJavaScriptHandler(
+              handlerName: 'getUrl',
+              callback: (args) {
+                return _websiteInputController.text;
+              },
+            );
 
             await controller.injectJavascriptFileFromAsset(
               assetFilePath: 'assets/js/webview_disable_scroll.js',
@@ -214,12 +263,13 @@ class _NewItemPageState extends State<NewItemPage> {
             ''');
 
             controller.addJavaScriptHandler(
-                handlerName: 'selectItem',
-                callback: (args) {
-                  setState(() {
-                    selectedItem = args[0];
-                  });
+              handlerName: 'selectItem',
+              callback: (args) {
+                setState(() {
+                  selectedItem = args[0];
                 });
+              },
+            );
           },
         ),
       ),
