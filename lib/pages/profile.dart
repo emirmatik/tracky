@@ -62,7 +62,7 @@ class _ProfilePage extends State<ProfilePage> {
       isUpdating = true;
     });
 
-    final res = await http.put(
+    await http.put(
       Uri.parse('$serverUrl/preferences/${user?.uid}'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -72,10 +72,6 @@ class _ProfilePage extends State<ProfilePage> {
 
     if (!mounted) {
       return;
-    }
-
-    if (res.statusCode != 200) {
-      throw Exception('Failed to update album.');
     }
 
     setState(() {

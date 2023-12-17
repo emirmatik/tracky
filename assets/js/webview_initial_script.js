@@ -16,7 +16,7 @@ allElementsOnPage.forEach(node => node.addEventListener('click', e => {
     e.stopPropagation();
     e.preventDefault();
 
-    if (node.tagName === 'BUTTON' || node.tagName === 'INPUT' || node.tagName === 'A') {
+    if (node.tagName.toLowerCase().includes('button')) {
         return null;
     }
 

@@ -1,10 +1,18 @@
+import 'dart:convert';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:provider/provider.dart';
 import 'package:tracky/components/styled_button.dart';
 import 'package:tracky/components/styled_input.dart';
 import 'package:tracky/components/styled_text.dart';
 import 'package:tracky/core/app_themes.dart';
+import 'package:tracky/core/user_provider.dart';
 import 'package:tracky/main.dart';
+import 'package:http/http.dart' as http;
 
 class NewItemPage extends StatefulWidget {
   const NewItemPage({super.key});
@@ -17,6 +25,8 @@ class _NewItemPageState extends State<NewItemPage> {
   final _websiteFormKey = GlobalKey<FormState>();
   final _saveFormKey = GlobalKey<FormState>();
 
+  final String serverUrl = 'https://tracky-wwr6.onrender.com';
+
   late TextEditingController _websiteInputController;
   late TextEditingController _titleInputController;
 
@@ -24,14 +34,21 @@ class _NewItemPageState extends State<NewItemPage> {
 
   Map<String, dynamic>? selectedItem;
 
+  User? user;
+
+  bool initialLoadComplete = false;
   bool isWebviewVisible = false;
   bool isSelecting = true;
+  bool isPosting = false;
 
   bool isDarkTheme = Main.theme == 'dark';
 
   @override
   void initState() {
     super.initState();
+
+    user = Provider.of<UserProvider>(context, listen: false).user;
+
     _websiteInputController = TextEditingController();
     _titleInputController = TextEditingController();
   }
@@ -59,29 +76,77 @@ class _NewItemPageState extends State<NewItemPage> {
     return null;
   }
 
-  void _onEnterWebsite() {
+  void _onEnterWebsite() async {
     bool isURLValid = _websiteFormKey.currentState!.validate();
 
     if (isURLValid) {
       // text is valid, open up the webview
+      if (_initialController != null) {
+        await _initialController?.evaluateJavascript(source: '''
+          window.flutter_inappwebview.callHandler('getUrl').then((url) => {
+            window.location.href = url;
+          });
+        ''');
+      }
+
       setState(() {
         isWebviewVisible = isURLValid;
+        isSelecting = true;
+        selectedItem = null;
+      });
+    }
+  }
+
+  void _postItem() async {
+    String title = _titleInputController.text;
+
+    final Map<String, dynamic> body = {
+      "xpath": selectedItem?['xpath'],
+      "html": selectedItem?['html'],
+      "title": title,
+      "url": _websiteInputController.text
+    };
+
+    setState(() {
+      isPosting = true;
+    });
+
+    final res = await http.post(
+      Uri.parse('$serverUrl/items/${user?.uid}'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(body),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    if (res.statusCode == 200) {
+      _websiteInputController.clear();
+      _titleInputController.clear();
+
+      setState(() {
+        _initialController = null;
+        isWebviewVisible = false;
+        selectedItem = null;
+        isSelecting = true;
+        isPosting = false;
+      });
+    } else {
+      setState(() {
+        isPosting = false;
       });
     }
   }
 
   void _onTrack() {
     bool isTitleValid = _saveFormKey.currentState!.validate();
-    if (!isTitleValid) return;
 
-    String title = _titleInputController.text;
-
-    print(selectedItem); // xpath, innerHTML
-    print(title);
-
-    // TODO :: API call
-    // TODO :: show notification based on the result
-    // TODO :: clear the inputs and set the variables to default
+    if (isTitleValid) {
+      _postItem();
+    }
   }
 
   void _onGoUp() async {
@@ -124,7 +189,10 @@ class _NewItemPageState extends State<NewItemPage> {
             validatorFn: _websiteValidator,
           ),
           const SizedBox(height: 16),
-          StyledButton(handlePress: _onEnterWebsite, text: 'Visit')
+          StyledButton(
+            handlePress: isPosting ? null : _onEnterWebsite,
+            text: 'Visit',
+          )
         ],
       ),
     );
@@ -140,10 +208,45 @@ class _NewItemPageState extends State<NewItemPage> {
       child: ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         child: InAppWebView(
+          initialOptions: InAppWebViewGroupOptions(
+            crossPlatform: InAppWebViewOptions(
+              useShouldOverrideUrlLoading: true,
+              useShouldInterceptFetchRequest: true,
+            ),
+          ),
+          shouldOverrideUrlLoading: (controller, navigationAction) async {
+            final url = navigationAction.request.url.toString();
+
+            String userUrl = _websiteInputController.text;
+
+            if (userUrl[userUrl.length - 1] != '/') {
+              userUrl += '/';
+            }
+
+            if (initialLoadComplete && url != userUrl) {
+              return NavigationActionPolicy.CANCEL;
+            }
+
+            return NavigationActionPolicy.ALLOW;
+          },
+          shouldInterceptFetchRequest: (controller, fetchRequest) async {
+            return FetchRequest(action: FetchRequestAction.ABORT);
+          },
           initialUrlRequest:
               URLRequest(url: Uri.parse(_websiteInputController.text)),
+          gestureRecognizers: Set()
+            ..add(Factory<VerticalDragGestureRecognizer>(
+                () => VerticalDragGestureRecognizer())),
           onLoadStop: (controller, url) async {
             _initialController = controller;
+            initialLoadComplete = true;
+
+            controller.addJavaScriptHandler(
+              handlerName: 'getUrl',
+              callback: (args) {
+                return _websiteInputController.text;
+              },
+            );
 
             await controller.injectJavascriptFileFromAsset(
               assetFilePath: 'assets/js/webview_disable_scroll.js',
@@ -160,12 +263,13 @@ class _NewItemPageState extends State<NewItemPage> {
             ''');
 
             controller.addJavaScriptHandler(
-                handlerName: 'selectItem',
-                callback: (args) {
-                  setState(() {
-                    selectedItem = args[0];
-                  });
+              handlerName: 'selectItem',
+              callback: (args) {
+                setState(() {
+                  selectedItem = args[0];
                 });
+              },
+            );
           },
         ),
       ),
@@ -217,15 +321,19 @@ class _NewItemPageState extends State<NewItemPage> {
           Expanded(
             flex: 2,
             child: StyledInput(
-              controller: _titleInputController,
-              hint: 'Give it a name',
               validatorFn: _titleValidator,
+              controller: _titleInputController,
+              isDisabled: isPosting,
+              hint: 'Give it a name',
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             flex: 1,
-            child: StyledButton(handlePress: _onTrack, text: 'Track'),
+            child: StyledButton(
+              handlePress: isPosting ? null : _onTrack,
+              text: 'Track',
+            ),
           ),
         ],
       ),
