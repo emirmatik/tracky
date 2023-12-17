@@ -216,22 +216,21 @@ class _NewItemPageState extends State<NewItemPage> {
             ),
           ),
           shouldOverrideUrlLoading: (controller, navigationAction) async {
-            final url = navigationAction.request.url.toString();
+            await controller.injectJavascriptFileFromAsset(
+              assetFilePath: 'assets/js/webview_disable_scroll.js',
+            );
 
-            String userUrl = _websiteInputController.text;
+            await controller.injectJavascriptFileFromAsset(
+              assetFilePath: 'assets/js/webview_initial_script.js',
+            );
 
-            if (userUrl[userUrl.length - 1] != '/') {
-              userUrl += '/';
-            }
-
-            if (initialLoadComplete && url != userUrl) {
-              return NavigationActionPolicy.CANCEL;
-            }
+            await controller.injectCSSCode(source: '''
+              .selectedByTracky {
+                border: 3px solid #759DEA;
+              }
+            ''');
 
             return NavigationActionPolicy.ALLOW;
-          },
-          shouldInterceptFetchRequest: (controller, fetchRequest) async {
-            return FetchRequest(action: FetchRequestAction.ABORT);
           },
           initialUrlRequest:
               URLRequest(url: Uri.parse(_websiteInputController.text)),

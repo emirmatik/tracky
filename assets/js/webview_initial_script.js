@@ -12,13 +12,9 @@ function getPathTo(element) {
 
 const allElementsOnPage = [...document.querySelectorAll('*')];
 
-allElementsOnPage.forEach(node => node.addEventListener('click', e => {
+allElementsOnPage.forEach(node => !node.onclick && node.addEventListener('click', e => {
     e.stopPropagation();
     e.preventDefault();
-
-    if (node.tagName.toLowerCase().includes('button')) {
-        return null;
-    }
 
     const prevSelected = document.querySelector('.selectedByTracky');
 
@@ -34,5 +30,7 @@ allElementsOnPage.forEach(node => node.addEventListener('click', e => {
         xpath: getPathTo(node),
         html: node.innerHTML
     }
+
     window.flutter_inappwebview.callHandler('selectItem', item);
+    return false;
 }));
