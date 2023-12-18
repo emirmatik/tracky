@@ -10,27 +10,51 @@ function getPathTo(element) {
     return segs(element).join('/');
 }
 
-const allElementsOnPage = [...document.querySelectorAll('*')];
+const initialCode = async () => {
+    await new Promise(res => setTimeout(res, 1000));
 
-allElementsOnPage.forEach(node => !node.onclick && node.addEventListener('click', e => {
-    e.stopPropagation();
-    e.preventDefault();
+    const allElementsOnPage = [...document.querySelectorAll('*')];
+    const elementWithClick = [];
 
-    const prevSelected = document.querySelector('.selectedByTracky');
+    allElementsOnPage.forEach(node => {
+        if (node.onclick) {
+            elementWithClick.push(node);
+            return;
+        }
+        
+        node.addEventListener('click', e => {
+            e.stopPropagation();
+            e.preventDefault();
 
-    if (prevSelected) {
-        if (prevSelected.classList.contains('doneByTracky')) return null;
-        prevSelected.classList.remove('selectedByTracky');
-    }
+            const prevSelected = document.querySelector('.selectedByTracky');
 
-    node.classList.add('selectedByTracky');
+            if (prevSelected) {
+                if (prevSelected.classList.contains('doneByTracky')) return null;
+                prevSelected.classList.remove('selectedByTracky');
+            }
 
-    // call the flutter fn to change the selected element
-    const item = {
-        xpath: getPathTo(node),
-        html: node.innerHTML
-    }
+            node.classList.add('selectedByTracky');
 
-    window.flutter_inappwebview.callHandler('selectItem', item);
-    return false;
-}));
+            // call the flutter fn to change the selected element
+            const item = {
+                xpath: getPathTo(node),
+                html: node.innerHTML
+            }
+
+            window.flutter_inappwebview.callHandler('selectItem', item);
+            return false;
+        })
+    });
+
+    elementWithClick.forEach(node => {
+        const children = node.querySelectorAll('*');
+
+        children.forEach(child => child.onclick = null);
+    });
+}
+
+if (document.readyState !== 'loading') {
+    initialCode();
+} else {
+    window.addEventListener('DOMContentLoaded', initialCode)
+}

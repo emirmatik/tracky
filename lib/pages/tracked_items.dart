@@ -157,10 +157,12 @@ class _TrackedItemsPageState extends State<TrackedItemsPage> {
             );
 
             await controller.evaluateJavascript(source: '''
-              (function() {
+              (async function() {
                 function getElementByXpath(path) {
                   return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
                 };
+
+                await new Promise(res => setTimeout(res, 1000));
 
                 window.flutter_inappwebview.callHandler('getXpath').then((xpath) => {
                   const element = getElementByXpath(xpath);

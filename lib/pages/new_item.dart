@@ -211,27 +211,9 @@ class _NewItemPageState extends State<NewItemPage> {
         child: InAppWebView(
           initialOptions: InAppWebViewGroupOptions(
             crossPlatform: InAppWebViewOptions(
-              useShouldOverrideUrlLoading: true,
               useShouldInterceptFetchRequest: true,
             ),
           ),
-          shouldOverrideUrlLoading: (controller, navigationAction) async {
-            await controller.injectJavascriptFileFromAsset(
-              assetFilePath: 'assets/js/webview_disable_scroll.js',
-            );
-
-            await controller.injectJavascriptFileFromAsset(
-              assetFilePath: 'assets/js/webview_initial_script.js',
-            );
-
-            await controller.injectCSSCode(source: '''
-              .selectedByTracky {
-                border: 3px solid #759DEA;
-              }
-            ''');
-
-            return NavigationActionPolicy.ALLOW;
-          },
           initialUrlRequest:
               URLRequest(url: Uri.parse(_websiteInputController.text)),
           gestureRecognizers: Set()
